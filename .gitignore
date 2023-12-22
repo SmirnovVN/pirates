@@ -1,0 +1,5 @@
+app/config.py
+db.sqlite3
+*.db
+.idea
+venv

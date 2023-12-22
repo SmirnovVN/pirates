@@ -1,0 +1,14 @@
+# Test your FastAPI endpoints
+
+GET http://127.0.0.1:8000/
+Accept: application/json
+
+###
+
+POST http://127.0.0.1:8000/ships/new?name=SHEEP&x=333.666&y=8
+Accept: application/json
+
+###
+
+GET http://127.0.0.1:8000/ships/SHEEP
+Accept: application/json
