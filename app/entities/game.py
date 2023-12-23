@@ -44,7 +44,7 @@ class Game(metaclass=Singleton):
             print(f'We see {len(self.enemies)} ships' if self.enemies else 'No enemies')
             commands = []
             for ship in self.ships:
-                command = decide(ship)
+                command = decide(ship, self.game_map, self.enemies)
                 if command:
                     commands.append(command)
             if commands:

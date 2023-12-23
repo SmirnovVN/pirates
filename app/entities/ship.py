@@ -1,5 +1,10 @@
 class Ship:
-    def __init__(self, id: int, x: int, y: int, size: int, hp: int, maxHp: int, direction: str, speed: int, maxSpeed: int, minSpeed: int, maxChangeSpeed: int, cannonCooldown: int, cannonCooldownLeft: int, cannonRadius: int, scanRadius: int, cannonShootSuccessCount: int):
+
+    def __init__(self, id: int = None, x: int = None, y: int = None, size: int = None,
+                 hp: int = None, maxHp: int = None, direction: str = None, speed: int = None, maxSpeed: int = None,
+                 minSpeed: int = None, maxChangeSpeed: int = None, cannonCooldown: int = None,
+                 cannonCooldownLeft: int = None, cannonRadius: int = None, scanRadius: int = None,
+                 cannonShootSuccessCount: int = None):
         self.id = id
         self.x = x
         self.y = y

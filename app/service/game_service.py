@@ -5,6 +5,7 @@ import httpx
 
 from app.config import settings
 from app.entities.map import Map
+from app.entities.ship import Ship
 from app.schemas.command import Command
 from app.schemas.default_response import DefaultResponse
 from app.schemas.response import Response
@@ -86,7 +87,9 @@ async def scan() -> Scan:
         data = response.json()
         if data.get('success'):
             print(data)
-            return Response(**data).scan
+            my_ships = [Ship(**entry) for entry in data['scan']['myShips']]
+            enemies = [Ship(**entry) for entry in data['scan']['enemyShips']]
+            return Scan(my_ships, enemies, data['scan']['zone'], data['scan']['tick'])
         else:
             print(f"Request failed with errors  {data.get('errors')}")
     else:
@@ -115,9 +118,10 @@ async def send_commands(commands: List[Command]) -> DefaultResponse:
     async with httpx.AsyncClient() as client:
         response = await client.post(f"{settings.external_url}/shipCommand",
                                      headers=headers,
-                                     json={'ships': commands})
+                                     json={'ships': [command.to_dict() for command in commands]})
     if response.status_code == 200:
         data = response.json()
+        print(data)
         if data.get('success'):
             return DefaultResponse(**data)
         else:
