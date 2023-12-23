@@ -1,18 +1,26 @@
-from fastapi import APIRouter, HTTPException, BackgroundTasks
+
+import random
+import time
+from io import BytesIO
+
+from PIL import Image, ImageDraw
+from fastapi import APIRouter, HTTPException, BackgroundTasks, Response, Query
 
 from app.entities.game import Game
+from app.entities.map import Map
+from app.enums.direction import Direction
 from app.enums.game_type import GameType
 from app.service.game_service import leave_deathmatch, register_battle_royal, \
     register_deathmatch
+from fastapi.responses import HTMLResponse
+from starlette.requests import Request
+from starlette.templating import Jinja2Templates
 
 router = APIRouter()
 
 
-@router.get("/{game_type}")
+@router.get("/start/{game_type}")
 async def game_new(game_type: GameType, background_tasks: BackgroundTasks):
-    """
-    Get any ship details
-    """
     game = Game()
     if game.started:
         return 'Game started already. Call game/stop to stop game'
@@ -31,9 +39,99 @@ async def game_new(game_type: GameType, background_tasks: BackgroundTasks):
 
 @router.get("/stop")
 async def game_stop():
-    """
-    Get any ship details
-    """
     Game.stop()
     await leave_deathmatch()
     return 'Game stopped'
+
+
+def draw(image, enlarge, ship, color):
+    if ship.direction in {Direction.EAST, Direction.WEST}:
+        width = ship.size * enlarge
+        height = enlarge
+    else:
+        width = enlarge
+        height = ship.size * enlarge
+    draw_x, draw_y = ship.x * enlarge, ship.y * enlarge
+    img = Image.new("RGB", (width, height), color)
+    image.paste(img, (draw_x - (width if ship.direction == Direction.EAST else 0),
+                      draw_y - (height if ship.direction == Direction.SOUTH else 0)))
+    img = Image.new("RGB", (enlarge, enlarge), tuple([c + 50 for c in color]))
+    image.paste(img, (draw_x, draw_y))
+    draw = ImageDraw.Draw(image)
+    draw.ellipse(
+        [
+            draw_x - ship.cannonRadius * enlarge,
+            draw_y - ship.cannonRadius * enlarge,
+            draw_x + ship.cannonRadius * enlarge,
+            draw_y + ship.cannonRadius * enlarge,
+        ],
+        outline=(235, 200, 200),
+    )
+    draw.ellipse(
+        [
+            draw_x - ship.scanRadius * enlarge,
+            draw_y - ship.scanRadius * enlarge,
+            draw_x + ship.scanRadius * enlarge,
+            draw_y + ship.scanRadius * enlarge,
+        ],
+        outline=(180, 235, 180),
+    )
+
+
+templates = Jinja2Templates(directory="templates")
+
+
+prev_tick = 0
+@router.get("/map/{enlarge}")
+async def get_game_map(enlarge: int,
+                       cache_buster: int = Query(int(time.time()), description="Cache buster to force image refresh")):
+    game = Game()
+    if game.started:
+        if game.rendered:
+            response = Response(content=game.image.getvalue(), media_type="image/png")
+            response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+            return response
+        game_map: Map = game.game_map
+        ships = game.ships
+        enemies = game.enemies
+
+        image = Image.new("RGB", (game_map.width * enlarge, game_map.height * enlarge), (226, 245, 226))
+
+        for island in game_map.islands:
+            island_map = island.map
+            start_x, start_y = island.start
+            for y, row in enumerate(island_map):
+                for x, cell in enumerate(row):
+                    if cell == 1 and x < game_map.width and y < game_map.height:
+                        draw_x, draw_y = (start_x + x) * enlarge, (start_y + y) * enlarge
+                        img = Image.new("RGB", (enlarge, enlarge), (107, 129, 109))
+                        image.paste(img, (draw_x, draw_y))
+
+        for ship in ships:
+            draw(image, enlarge, ship, (20, 133, 165))
+
+        for ship in enemies:
+            draw(image, enlarge, ship, (183, 7, 43))
+
+        img_byte_array = BytesIO()
+        image.save(img_byte_array, format="PNG")
+        game.image = img_byte_array
+        game.rendered = True
+
+        response = Response(content=img_byte_array.getvalue(), media_type="image/png")
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+        return response
+    img_byte_array = BytesIO()
+    image = Image.new("RGB", (2000, 2000), (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
+    image.save(img_byte_array, format="PNG")
+
+    response = Response(content=img_byte_array.getvalue(), media_type="image/png")
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    return response
+
+
+# Endpoint to serve the HTML page
+@router.get("/map", response_class=HTMLResponse)
+async def get_map_page(request: Request):
+    return templates.TemplateResponse("map.html",
+                                      {"request": request})
