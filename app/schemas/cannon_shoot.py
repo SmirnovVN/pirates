@@ -1,0 +1,2 @@
+class CannonShoot:
+    pass
