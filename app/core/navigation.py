@@ -1,5 +1,5 @@
+import logging
 from typing import List
-
 
 from app.entities.map import Map
 from app.entities.ship import Ship
@@ -15,7 +15,7 @@ def distance(x1: float, x2: float, y1: float, y2: float) -> float:
 def decide(ship: Ship, map: Map, enemies: List[Ship]) -> Command:
     for enemy in enemies:
         if distance(ship.x, enemy.x, ship.y, enemy.y) <= ship.cannonRadius:
-            print(f"Shoot to {enemy.x} {enemy.y} by {ship.id}")
+            logging.debug(f"Shoot to {enemy.x} {enemy.y} by {ship.id}")
             return Command(ship.id, cannon_shoot=CannonShoot(enemy.x, enemy.y))
         else:
             direction = calculate_direction(ship, enemy)

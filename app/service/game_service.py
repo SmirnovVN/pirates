@@ -1,4 +1,4 @@
-import asyncio
+import logging
 from typing import List
 
 import httpx
@@ -8,7 +8,6 @@ from app.entities.map import Map
 from app.entities.ship import Ship
 from app.schemas.command import Command
 from app.schemas.default_response import DefaultResponse
-from app.schemas.response import Response
 from app.schemas.scan import Scan
 
 
@@ -26,9 +25,9 @@ async def get_map() -> Map:
                 map_data = map_response.json()
                 return Map(**map_data)
             else:
-                print(f"Request failed with status code {map_response.status_code}")
+                logging.debug(f"Request failed with status code {map_response.status_code}")
     else:
-        print(f"Request failed with status code {response.status_code}")
+        logging.debug(f"Request failed with status code {response.status_code}")
 
 
 async def register_deathmatch() -> bool:
@@ -40,10 +39,10 @@ async def register_deathmatch() -> bool:
         if data.get('success') or data['errors'][0]['message'] == 'Вы уже участвуете в битве':
             return True
         else:
-            print(f"Request failed with errors  {data.get('errors')}")
+            logging.debug(f"Request failed with errors  {data.get('errors')}")
             return False
     else:
-        print(f"Request failed with status code {response.status_code}")
+        logging.debug(f"Request failed with status code {response.status_code}")
         return False
 
 
@@ -56,10 +55,10 @@ async def leave_deathmatch() -> bool:
         if data.get('success'):
             return data.get('success')
         else:
-            print(f"Request failed with errors  {data.get('errors')}")
+            logging.debug(f"Request failed with errors  {data.get('errors')}")
             return False
     else:
-        print(f"Request failed with status code {response.status_code}")
+        logging.debug(f"Request failed with status code {response.status_code}")
         return False
 
 
@@ -72,10 +71,10 @@ async def register_battle_royal() -> bool:
         if data.get('success'):
             return data.get('success')
         else:
-            print(f"Request failed with errors  {data.get('errors')}")
+            logging.debug(f"Request failed with errors  {data.get('errors')}")
             return False
     else:
-        print(f"Request failed with status code {response.status_code}")
+        logging.debug(f"Request failed with status code {response.status_code}")
         return False
 
 
@@ -86,15 +85,14 @@ async def scan() -> Scan:
     if response.status_code == 200:
         data = response.json()
         if data.get('success'):
-            print(data)
+            logging.debug(data)
             my_ships = [Ship(**entry) for entry in data['scan']['myShips']]
             enemies = [Ship(**entry) for entry in data['scan']['enemyShips']]
             return Scan(my_ships, enemies, data['scan']['zone'], data['scan']['tick'])
         else:
-            print(f"Request failed with errors  {data.get('errors')}")
+            logging.debug(f"Request failed with errors  {data.get('errors')}")
     else:
-        print(f"Request failed with status code {response.status_code}")
-
+        logging.debug(f"Request failed with status code {response.status_code}")
 
 
 async def long_scan(x: int, y: int) -> DefaultResponse:
@@ -108,9 +106,9 @@ async def long_scan(x: int, y: int) -> DefaultResponse:
         if data.get('success'):
             return DefaultResponse(**data)
         else:
-            print(f"Request failed with errors  {data.get('errors')}")
+            logging.debug(f"Request failed with errors  {data.get('errors')}")
     else:
-        print(f"Request failed with status code {response.status_code}")
+        logging.debug(f"Request failed with status code {response.status_code}")
 
 
 async def send_commands(commands: List[Command]) -> DefaultResponse:
@@ -121,10 +119,10 @@ async def send_commands(commands: List[Command]) -> DefaultResponse:
                                      json={'ships': [command.to_dict() for command in commands]})
     if response.status_code == 200:
         data = response.json()
-        print(data)
+        logging.debug(data)
         if data.get('success'):
             return DefaultResponse(**data)
         else:
-            print(f"Request failed with errors  {data.get('errors')}")
+            logging.debug(f"Request failed with errors  {data.get('errors')}")
     else:
-        print(f"Request failed with status code {response.status_code}")
+        logging.debug(f"Request failed with status code {response.status_code}")
