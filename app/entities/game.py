@@ -17,6 +17,7 @@ class Game(metaclass=Singleton):
         self.ships: List[Ship] = []
         self.enemies: List[Ship] = []
         self.started = False
+        self.current_tick = None
 
     @staticmethod
     def stop():
@@ -34,19 +35,21 @@ class Game(metaclass=Singleton):
         print('Play')
         while self.started:
             s: Scan = await scan()
-            self.ships = s.myShips
-            self.enemies = s.enemyShips
-            if not self.ships:
-                Game.stop()
-                return
-            print('Map exist' if self.game_map else 'Map is None')
-            print(f'We have {len(self.ships)} ships' if self.ships else 'No ships')
-            print(f'We see {len(self.enemies)} ships' if self.enemies else 'No enemies')
-            commands = []
-            for ship in self.ships:
-                command = decide(ship, self.game_map, self.enemies)
-                if command:
-                    commands.append(command)
-            if commands:
-                await send_commands(commands)
-            await asyncio.sleep(3)  # todo how much time
+            print(s.tick)
+            if self.current_tick != s.tick:
+                self.current_tick = s.tick
+                self.ships = s.myShips
+                self.enemies = s.enemyShips
+                if not self.ships:
+                    Game.stop()
+                    return
+                print('Map exist' if self.game_map else 'Map is None')
+                print(f'We have {len(self.ships)} ships' if self.ships else 'No ships')
+                print(f'We see {len(self.enemies)} ships' if self.enemies else 'No enemies')
+                commands = []
+                for ship in self.ships:
+                    command = decide(ship, self.game_map, self.enemies)
+                    if command:
+                        commands.append(command)
+                if commands:
+                    await send_commands(commands)
