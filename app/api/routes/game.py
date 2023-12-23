@@ -1,15 +1,15 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, BackgroundTasks
 
 from app.entities.game import Game
 from app.enums.game_type import GameType
 from app.service.game_service import leave_deathmatch, register_battle_royal, \
     register_deathmatch
 
-router = APIRouter(prefix='/game')
+router = APIRouter()
 
 
 @router.get("/{game_type}")
-async def game_new(game_type: GameType):
+async def game_new(game_type: GameType, background_tasks: BackgroundTasks):
     """
     Get any ship details
     """
@@ -24,8 +24,9 @@ async def game_new(game_type: GameType):
         raise HTTPException(400,
                             detail=f'Bad game type: {game_type} . Pass battle_royal or deathmatch')
     if success:
-        await game.start()
-    return 'Game started'
+        await game.start(background_tasks)
+        return 'Game started'
+    return f'Game {game_type} was not started'
 
 
 @router.get("/stop")

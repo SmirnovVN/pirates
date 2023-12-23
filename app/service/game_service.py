@@ -37,8 +37,8 @@ async def register_deathmatch() -> bool:
         response = await client.post(f"{settings.external_url}/deathMatch/registration", headers=headers)
     if response.status_code == 200:
         data = response.json()
-        if data.get('success'):
-            return data.get('success')
+        if data.get('success') or data['errors'][0]['message'] == 'Вы уже участвуете в битве':
+            return True
         else:
             print(f"Request failed with errors  {data.get('errors')}")
             return False
@@ -92,9 +92,6 @@ async def scan() -> Scan:
             print(f"Request failed with errors  {data.get('errors')}")
     else:
         print(f"Request failed with status code {response.status_code}")
-
-
-asyncio.run(scan())
 
 
 async def long_scan(x: int, y: int) -> Scan:
