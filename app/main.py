@@ -1,19 +1,26 @@
 import logging
-import sys
 
 import uvicorn
 from app.api.routes import router
 from app.config import settings
 from fastapi import FastAPI
 
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG if settings.debug else logging.INFO)
 
+logging.basicConfig(
+    level=logging.DEBUG if settings.debug else logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[
+        logging.FileHandler("log.log"),
+        logging.StreamHandler()
+    ]
+)
 
 app = FastAPI()
 
 
 @app.get("/")
 async def root():
+    logging.debug('Hello')
     return {"message": "Hello World"}
 
 
