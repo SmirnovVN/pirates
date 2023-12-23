@@ -2,6 +2,6 @@ from app.schemas.scan import Scan
 
 
 class Response:
-    def __init__(self, success: bool, scan: Scan):
+    def __init__(self, success: bool, scan: dict):
         self.success = success
-        self.scan = scan
+        self.scan = Scan(**scan)

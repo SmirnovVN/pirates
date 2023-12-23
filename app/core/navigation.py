@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import settings
 from app.crud.ship import move_ship
 from app.models import Ship
+from app.schemas.command import Command
 
 
 def distance(x1: float, x2: float, y1: float, y2: float) -> float:
@@ -38,3 +39,7 @@ async def move(db: AsyncSession, ship: Ship, x: float, y: float):
         return ship
     else:
         raise HTTPException(status_code=response.status_code, detail="Error during move")
+
+
+def decide(ship: Ship) -> Command:
+    pass
