@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from app.models import Ship
+from app.entities.ship import Ship
 
 
 class Scan:

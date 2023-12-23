@@ -1,4 +1,3 @@
-import asyncio
 from typing import Optional, List
 
 from fastapi import BackgroundTasks
