@@ -12,3 +12,30 @@ Accept: application/json
 
 GET http://127.0.0.1:8000/ships/SHEEP
 Accept: application/json
+
+###
+
+POST https://datsblack.datsteam.dev/api/deathMatch/registration
+X-API-Key: token
+
+###
+
+GET https://datsblack.datsteam.dev/api/scan
+X-API-Key: token
+
+###
+
+POST https://datsblack.datsteam.dev/api/longScan
+X-API-Key: token
+Content-Type: application/json
+
+{
+  "x": 1,
+  "y": 10
+}
+###
+
+GET https://datsblack.datsteam.dev/api/map
+X-API-Key: token
+
+###
