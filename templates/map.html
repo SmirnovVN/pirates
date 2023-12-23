@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Map</title>
+    <script>
+        function refreshImage() {
+            // Get the image element
+            var imgElement = document.getElementById('mapImage');
+
+            // Add a timestamp or random value to the image URL to force a refresh
+            var imageUrl = imgElement.src;
+            var timestamp = new Date().getTime() ;
+            imageUrl = imageUrl.replace(/\?t=\d+/, '');
+            imgElement.src = imageUrl + (imageUrl.includes('?') ? '&' : '?') + 't=' + timestamp;
+
+            setTimeout(refreshImage, 500);
+        }
+
+        // Start the refresh cycle when the page loads
+        window.onload = function() {
+            refreshImage();
+        };
+    </script>
+</head>
+<body>
+    <img id="mapImage" src="/game/map/2" alt="Game Map">
+</body>
+</html>

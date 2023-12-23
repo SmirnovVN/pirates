@@ -18,6 +18,8 @@ class Game(metaclass=Singleton):
         self.enemies: List[Ship] = []
         self.started = False
         self.current_tick = None
+        self.rendered = False
+        self.image = None
 
     @staticmethod
     def stop():
@@ -40,6 +42,7 @@ class Game(metaclass=Singleton):
             logging.debug(f'Current tick {s.tick}')
             if self.current_tick != s.tick:
                 self.current_tick = s.tick
+                self.rendered = False
                 self.ships = s.myShips
                 self.enemies = s.enemyShips
                 if not self.ships:
