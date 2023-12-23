@@ -1,4 +1,3 @@
-
 import random
 import time
 from io import BytesIO
@@ -57,8 +56,8 @@ def draw(image, enlarge, ship, color):
                       draw_y - (height if ship.direction == Direction.SOUTH else 0)))
     img = Image.new("RGB", (enlarge, enlarge), tuple([c + 50 for c in color]))
     image.paste(img, (draw_x, draw_y))
-    draw = ImageDraw.Draw(image)
-    draw.ellipse(
+    idraw = ImageDraw.Draw(image)
+    idraw.ellipse(
         [
             draw_x - ship.cannonRadius * enlarge,
             draw_y - ship.cannonRadius * enlarge,
@@ -67,7 +66,7 @@ def draw(image, enlarge, ship, color):
         ],
         outline=(235, 200, 200),
     )
-    draw.ellipse(
+    idraw.ellipse(
         [
             draw_x - ship.scanRadius * enlarge,
             draw_y - ship.scanRadius * enlarge,
@@ -78,13 +77,25 @@ def draw(image, enlarge, ship, color):
     )
 
 
-templates = Jinja2Templates(directory="templates")
+def draw_coordinate_grid(image, cell_size, enlarge, width, height):
+    idraw = ImageDraw.Draw(image)
+
+    grid_color = (200, 200, 200)
+
+    for y in range(0, height, cell_size):
+        idraw.line([(0, y * enlarge), (width * enlarge, y * enlarge)], fill=grid_color)
+
+    for x in range(0, width, cell_size):
+        idraw.line([(x * enlarge, 0), (x * enlarge, height * enlarge)], fill=grid_color)
+
+    for y in range(0, height, cell_size):
+        for x in range(0, width, cell_size):
+            idraw.text((x * enlarge + 2, y * enlarge + 2), f"({x},{y})", fill=grid_color)
 
 
-prev_tick = 0
 @router.get("/map/{enlarge}")
 async def get_game_map(enlarge: int,
-                       cache_buster: int = Query(int(time.time()), description="Cache buster to force image refresh")):
+                       _: int = Query(int(time.time()))):
     game = Game()
     if game.started:
         if game.rendered:
@@ -113,6 +124,8 @@ async def get_game_map(enlarge: int,
         for ship in enemies:
             draw(image, enlarge, ship, (183, 7, 43))
 
+        draw_coordinate_grid(image, 100, enlarge, game_map.width, game_map.height)
+
         img_byte_array = BytesIO()
         image.save(img_byte_array, format="PNG")
         game.image = img_byte_array
@@ -121,13 +134,18 @@ async def get_game_map(enlarge: int,
         response = Response(content=img_byte_array.getvalue(), media_type="image/png")
         response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
         return response
-    img_byte_array = BytesIO()
-    image = Image.new("RGB", (2000, 2000), (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
-    image.save(img_byte_array, format="PNG")
+    else:
+        img_byte_array = BytesIO()
+        image = Image.new("RGB", (2000, 2000),
+                          (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
+        image.save(img_byte_array, format="PNG")
 
-    response = Response(content=img_byte_array.getvalue(), media_type="image/png")
-    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
-    return response
+        response = Response(content=img_byte_array.getvalue(), media_type="image/png")
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+        return response
+
+
+templates = Jinja2Templates(directory="templates")
 
 
 # Endpoint to serve the HTML page
