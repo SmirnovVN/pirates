@@ -32,4 +32,4 @@ class Ship:
                 ours += ' *'
         else:
             ours = ''
-        return '\n'+'[]'*self.size + f'({self.x}, {self.y}, {self.direction}, speed: {self.speed}) id {self.id}, hp: {self.hp}' + ours
+        return '\n'+'[]'*self.size + f'({self.x}, {self.y}, {self.direction.value}, speed: {self.speed}) id {self.id}, hp: {self.hp}' + ours
