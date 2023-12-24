@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from typing import Optional, List
 
@@ -72,5 +73,7 @@ class Game(metaclass=Singleton):
                         await send_commands(commands)
                     else:
                         logging.info(f'No commands on tick: {self.current_tick}')
+                    await asyncio.sleep(3)
             except Exception as e:
                 logging.error(e)
+                await asyncio.sleep(10)
