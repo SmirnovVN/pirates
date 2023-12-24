@@ -29,7 +29,10 @@ def decide(ship: Ship, map: Map, enemies: List[Ship], dest_x: int, dest_y: int, 
 
 def calculate_speed_around_enemies(ship: Ship, cannon_shot: CannonShoot) -> Optional[int]:
     if cannon_shot:
-        return -ship.maxChangeSpeed if ship.speed >= ship.maxChangeSpeed else -ship.speed
+        if ship.speed >= int(ship.maxSpeed/2):
+            return -min(ship.speed - int(ship.maxSpeed/2), ship.maxChangeSpeed)
+        else:
+            return min(ship.speed - int(ship.maxSpeed / 2), ship.maxChangeSpeed)
     else:
         return None
 
@@ -50,8 +53,8 @@ def get_desired_direction(ship: Ship, dest_x: int, dest_y: int) -> Direction:
 
 
 def calculate_speed(ship: Ship, map: Map, enemies: List[Ship], dest_x: int, dest_y: int) -> int:
-    if ship.speed == 0:
-        return ship.maxChangeSpeed
+    if ship.speed != ship.maxSpeed:
+        return min(ship.maxChangeSpeed, ship.maxSpeed - ship.speed)
     else:
         return 0
 
