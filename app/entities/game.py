@@ -54,7 +54,7 @@ class Game(metaclass=Singleton):
                     logging.debug('No ships')
                     Game.stop()
                     return
-                if not self.currentDestination:
+                if not self.currentDestination and self.zone:
                     self.currentDestination = Destination(self.zone.x, self.zone.y)
                 logging.info(f'Our ships: {self.ships}')
                 logging.info(f'Enemy ships: {self.enemies}')
