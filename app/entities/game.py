@@ -61,7 +61,9 @@ class Game(metaclass=Singleton):
                 dest_x = self.currentDestination.x if self.currentDestination else None
                 dest_y = self.currentDestination.y if self.currentDestination else None
                 for ship in self.ships:
-                    command = decide(ship, self.game_map, self.enemies, dest_x, dest_y)
+                    command, new_dest_x, new_dest_y = decide(ship, self.game_map, self.enemies, dest_x, dest_y)
+                    if new_dest_x and new_dest_y:
+                        self.currentDestination = Destination(new_dest_x, new_dest_y)
                     if command:
                         commands.append(command)
                 commands = "\n".join([str(d.to_dict()) for d in commands])
