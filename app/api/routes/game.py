@@ -1,3 +1,4 @@
+import logging
 import random
 import time
 from io import BytesIO
@@ -10,7 +11,7 @@ from app.enums.direction import Direction
 from app.entities.game import Game, Destination
 from app.enums.game_type import GameType
 from app.service.game_service import leave_deathmatch, register_battle_royal, \
-    register_deathmatch, get_map
+    register_deathmatch, get_map, long_scan
 from fastapi.responses import HTMLResponse
 from starlette.requests import Request
 from starlette.templating import Jinja2Templates
@@ -42,6 +43,10 @@ async def game_new(game_type: GameType, background_tasks: BackgroundTasks):
 async def set_destination(x: int, y: int, forced: bool = False):
     game = Game()
     game.currentDestination = Destination(x, y, forced)
+    try:
+        await long_scan(x, y)
+    except:
+        print('longscan error')
     return 'Destination set'
 
 
