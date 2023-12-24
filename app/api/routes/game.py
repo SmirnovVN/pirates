@@ -5,7 +5,6 @@ from io import BytesIO
 from PIL import Image, ImageDraw
 from fastapi import APIRouter, HTTPException, BackgroundTasks, Response, Query
 
-from app.entities.game import Game
 from app.entities.map import Map
 from app.enums.direction import Direction
 from app.entities.game import Game, Destination
@@ -41,6 +40,7 @@ async def game_new(game_type: GameType, background_tasks: BackgroundTasks):
 async def set_destination(x: int, y: int):
     Game.currentDestination = Destination(x, y)
     return 'Destination set'
+
 
 @router.get("/stop")
 async def game_stop():
