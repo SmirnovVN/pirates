@@ -20,7 +20,7 @@ def decide(ship: Ship, map: Map, enemies: List[Ship], dest_x: int, dest_y: int) 
         change_speed = calculate_speed(ship, map, enemies, dest_x, dest_y)
         rotate = calculate_direction_by_desired_direction(ship, get_desired_direction(ship, dest_x, dest_y))
         cannon_shoot = None
-    return Command(ship.id, changeSpeed=None if change_speed==0 else change_speed,
+    return Command(ship.id, changeSpeed=None if change_speed == 0 else change_speed,
                    rotate=None if rotate == 0 else rotate, cannon_shoot=cannon_shoot)
 
 
