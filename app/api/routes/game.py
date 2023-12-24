@@ -81,7 +81,7 @@ def draw(image, enlarge, ship, color):
     if ship.scanRadius:
         radius = ship.scanRadius
     else:
-        radius = 20  # todo settings.deafult_cannon_radius
+        radius = 60  # todo settings.deafult_cannon_radius
     idraw.ellipse(
         [
             draw_x - radius * enlarge,
