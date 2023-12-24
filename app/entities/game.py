@@ -1,5 +1,4 @@
 import logging
-from collections import defaultdict
 from typing import Optional, List
 
 
@@ -41,39 +40,40 @@ class Game(metaclass=Singleton):
     async def play(self):
         logging.debug('Play')
         while self.started:
-            logging.debug('Scan')
-            s: Scan = await scan()
-            logging.debug(f'Current tick {s.tick}')
-            if self.current_tick != s.tick:
-                self.current_tick = s.tick
-                self.rendered = False
-                self.ships = s.myShips
-                self.enemies = s.enemyShips
-                self.zone = s.zone
-                if not self.ships:
-                    logging.debug('No ships')
-                    Game.stop()
-                    return
-                if not self.currentDestination and self.zone:
-                    self.currentDestination = Destination(self.zone.x, self.zone.y)
-                logging.info(f'Our ships: {self.ships}')
-                logging.info(f'Enemy ships: {self.enemies}')
-                commands = []
-                if self.enemies:
-                    self.currentDestination = None
-                dest_x = self.currentDestination.x if self.currentDestination else None
-                dest_y = self.currentDestination.y if self.currentDestination else None
-                forced = self.currentDestination.forced if self.currentDestination else False
-                for ship in self.ships:
-                    command, new_dest_x, new_dest_y = decide(ship, self.game_map, self.enemies, dest_x, dest_y, forced)
-                    if new_dest_x and new_dest_y:
-                        self.currentDestination = Destination(new_dest_x, new_dest_y)
-                    if command:
-                        commands.append(command)
-                commandsass = "\n".join([str(d.to_dict()) for d in commands])
-                logging.info(f'Send {commandsass}')
-                if commands and settings.send_commands:
-                    logging.info(f'Send {len(commands)} commands on tick: {self.current_tick}')
-                    await send_commands(commands)
-                else:
-                    logging.info(f'No commands on tick: {self.current_tick}')
+            try:
+                logging.debug('Scan')
+                s: Scan = await scan()
+                logging.debug(f'Current tick {s.tick}')
+                if self.current_tick != s.tick:
+                    self.current_tick = s.tick
+                    self.rendered = False
+                    self.ships = s.myShips
+                    self.enemies = s.enemyShips
+                    self.zone = s.zone
+                    if not self.ships:
+                        logging.debug('No ships')
+                        Game.stop()
+                        return
+                    if not self.currentDestination and self.zone:
+                        self.currentDestination = Destination(self.zone.x, self.zone.y)
+                    logging.info(f'Our ships: {self.ships}')
+                    logging.info(f'Enemy ships: {self.enemies}')
+                    commands = []
+                    dest_x = self.currentDestination.x if self.currentDestination else None
+                    dest_y = self.currentDestination.y if self.currentDestination else None
+                    forced = self.currentDestination.forced if self.currentDestination else False
+                    for ship in self.ships:
+                        command, new_dest_x, new_dest_y = decide(ship, self.game_map, self.enemies, dest_x, dest_y, forced)
+                        if new_dest_x and new_dest_y:
+                            self.currentDestination = Destination(new_dest_x, new_dest_y)
+                        if command:
+                            commands.append(command)
+                    commandsass = "\n".join([str(d.to_dict()) for d in commands])
+                    logging.info(f'Send {commandsass}')
+                    if commands and settings.send_commands:
+                        logging.info(f'Send {len(commands)} commands on tick: {self.current_tick}')
+                        await send_commands(commands)
+                    else:
+                        logging.info(f'No commands on tick: {self.current_tick}')
+            except Exception as e:
+                logging.error(e)
