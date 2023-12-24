@@ -93,7 +93,7 @@ def draw_coordinate_grid(image, cell_size, enlarge, width, height):
             idraw.text((x * enlarge + 2, y * enlarge + 2), f"({x},{y})", fill=grid_color)
 
 
-@router.get("/map/{enlarge}")
+@router.get("/map/image/{enlarge}")
 async def get_game_map(enlarge: int,
                        _: int = Query(int(time.time()))):
     game = Game()
@@ -105,6 +105,22 @@ async def get_game_map(enlarge: int,
         game_map: Map = game.game_map
         ships = game.ships
         enemies = game.enemies
+        # import json
+        # with open('map.json', 'r') as f:
+        #     map_dict = json.loads(f.read())
+        #     from app.entities.island import Island
+        #     islands = [Island(**d) for d in map_dict['islands']]
+        #     game_map = Map(width=map_dict['width'],
+        #                    height=map_dict['height'],
+        #                    slug=map_dict['slug'],
+        #                    islands=islands)
+        # with open('firstscan_example.json', 'r') as f:
+        #     map_dict = json.loads(f.read())
+        #     from app.entities.ship import Ship
+        #     ships = [Ship(**d) for d in map_dict['scan']['myShips']]
+        #     enemies = [Ship(**d) for d in map_dict['scan']['myShips']]
+        #     for d in enemies:
+        #         d.x = d.x + 100
 
         image = Image.new("RGB", (game_map.width * enlarge, game_map.height * enlarge), (226, 245, 226))
 
@@ -149,7 +165,7 @@ templates = Jinja2Templates(directory="templates")
 
 
 # Endpoint to serve the HTML page
-@router.get("/map", response_class=HTMLResponse)
-async def get_map_page(request: Request):
+@router.get("/map/{enlarge}", response_class=HTMLResponse)
+async def get_map_page(request: Request, enlarge: int):
     return templates.TemplateResponse("map.html",
-                                      {"request": request})
+                                      {"request": request, "enlarge": enlarge})

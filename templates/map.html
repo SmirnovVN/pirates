@@ -15,7 +15,7 @@
         }
     </style>
     <script>
-        var enlarge = 2;
+        var enlarge = {{ enlarge|tojson|safe }};
         function refreshImage() {
             // Get the image element
             var imgElement = document.getElementById('mapImage');
@@ -54,7 +54,7 @@
     </script>
 </head>
 <body>
-    <img id="mapImage" src="/game/map/2" alt="Game Map">
+    <img id="mapImage" src="/game/map/image/{{enlarge}}" alt="Game Map">
     <div id="tooltip"></div>
 </body>
 </html>
