@@ -1,4 +1,5 @@
 import logging
+from collections import defaultdict
 from typing import List, Optional
 from app.entities.map import Map
 from app.entities.ship import Ship
@@ -6,6 +7,7 @@ from app.enums.direction import Direction
 from app.schemas.cannon_shoot import CannonShoot
 from app.schemas.command import Command
 
+ship_counters = defaultdict(int)
 
 def distance(x1: float, x2: float, y1: float, y2: float) -> float:
     return ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** .5
@@ -29,12 +31,12 @@ def decide(ship: Ship, map: Map, enemies: List[Ship], dest_x: int, dest_y: int, 
 
 def calculate_speed_around_enemies(ship: Ship, cannon_shot: CannonShoot) -> Optional[int]:
     if cannon_shot:
-        if ship.speed >= int(ship.maxSpeed/2):
-            return -min(ship.speed - int(ship.maxSpeed/2), ship.maxChangeSpeed)
-        else:
-            return min(ship.speed - int(ship.maxSpeed / 2), ship.maxChangeSpeed)
-    else:
-        return None
+        ship_counters[ship.id] += ship.id
+        choose = ship_counters[ship.id] % 3
+        if choose == 1:
+            return -min(ship.maxChangeSpeed, ship.speed)
+        elif choose == 2:
+            return min(ship.maxSpeed - ship.speed, ship.maxChangeSpeed)
 
 
 def get_desired_direction(ship: Ship, dest_x: int, dest_y: int) -> Direction:
@@ -63,11 +65,12 @@ def calculate_direction_to_closest_enemy(ship: Ship, enemies: List[Ship]) -> (in
     lowest_distance = 100000
     closest_enemy = None
     for enemy in enemies:
-        if distance(ship.x, enemy.x, ship.y, enemy.y) < lowest_distance:
-            lowest_distance = distance(ship.x, enemy.x, ship.y, enemy.y)
+        pred_x, pred_y = get_enemy_predicted_position(enemy)
+        if distance(ship.x, pred_x, ship.y, pred_y) < lowest_distance:
+            lowest_distance = distance(ship.x, pred_y, ship.y, pred_y)
             closest_enemy = enemy
-    return (calculate_direction(ship, closest_enemy), closest_enemy.x,
-            closest_enemy.y)
+    pred_x, pred_y = get_enemy_predicted_position(closest_enemy)
+    return calculate_direction(ship, closest_enemy), pred_x, pred_y
 
 
 def calculate_shot(ship: Ship, enemies: List[Ship]) -> Optional[CannonShoot]:
