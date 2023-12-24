@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Map</title>
+    <style>
+        #tooltip {
+            position: absolute;
+            display: none;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+    </style>
+    <script>
+        var enlarge = {{ enlarge|tojson|safe }};
+        function refreshImage() {
+            // Get the image element
+            var imgElement = document.getElementById('mapImage');
+
+            // Add a timestamp or random value to the image URL to force a refresh
+            var imageUrl = imgElement.src;
+            var timestamp = new Date().getTime() ;
+            imageUrl = imageUrl.replace(/\?t=\d+/, '');
+            imgElement.src = imageUrl + (imageUrl.includes('?') ? '&' : '?') + 't=' + timestamp;
+
+            setTimeout(refreshImage, 500);
+        }
+        function showTooltip(event) {
+            var tooltip = document.getElementById('tooltip');
+            var x = event.clientX + window.scrollX;
+            var y = event.clientY + window.scrollY;
+            tooltip.style.display = 'block';
+            tooltip.style.left = (x + 5) + 'px';
+            tooltip.style.top = (y + 5) + 'px';
+            tooltip.innerText = `(${x / enlarge - 5}, ${y / enlarge - 5})`;
+        }
+
+        function hideTooltip() {
+            var tooltip = document.getElementById('tooltip');
+            tooltip.style.display = 'none';
+        }
+
+        window.onload = function() {
+            refreshImage();
+            var mapImage = document.getElementById('mapImage');
+            if (mapImage) {
+                mapImage.addEventListener('mousemove', showTooltip);
+                mapImage.addEventListener('mouseout', hideTooltip);
+            }
+        };
+    </script>
+</head>
+<body>
+    <img id="mapImage" src="/game/map/image/{{enlarge}}" alt="Game Map">
+    <div id="tooltip"></div>
+</body>
+</html>

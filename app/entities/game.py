@@ -1,3 +1,4 @@
+import logging
 from typing import Optional, List
 
 from fastapi import BackgroundTasks
@@ -25,35 +26,40 @@ class Game(metaclass=Singleton):
         self.enemies: List[Ship] = []
         self.started = False
         self.current_tick = None
+        self.rendered = False
+        self.image = None
 
     @staticmethod
     def stop():
+        logging.debug('Game stop')
         game = Game()
         game.started = False
         Game._instances = {}
 
     async def start(self, background_tasks: BackgroundTasks):
+        logging.debug('Start play')
         self.game_map = await get_map()
         self.started = True
-        print('Start play')
         background_tasks.add_task(self.play)
 
     async def play(self):
-        print('Play')
+        logging.debug('Play')
         while self.started:
+            logging.debug('Scan')
             s: Scan = await scan()
-            print(s.tick)
+            logging.debug(f'Current tick {s.tick}')
             if self.current_tick != s.tick:
                 self.current_tick = s.tick
+                self.rendered = False
                 self.ships = s.myShips
                 self.enemies = s.enemyShips
 
                 if not self.ships:
+                    logging.debug('No ships')
                     Game.stop()
                     return
-                print('Map exist' if self.game_map else 'Map is None')
-                print(f'We have {len(self.ships)} ships' if self.ships else 'No ships')
-                print(f'We see {len(self.enemies)} ships' if self.enemies else 'No enemies')
+                logging.debug(f'We have {len(self.ships)} ships')
+                logging.debug(f'We see {len(self.enemies)} enemies' if self.enemies else 'No enemies')
                 commands = []
                 if self.enemies:
                     self.currentDestination = None
@@ -64,4 +70,7 @@ class Game(metaclass=Singleton):
                     if command:
                         commands.append(command)
                 if commands:
+                    logging.info(f'Send {len(commands)} commands on tick: {self.current_tick}')
                     await send_commands(commands)
+                else:
+                    logging.info(f'No commands on tick: {self.current_tick}')

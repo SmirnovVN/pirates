@@ -1,5 +1,5 @@
+import logging
 from typing import List, Optional
-
 from app.entities.map import Map
 from app.entities.ship import Ship
 from app.enums.direction import Direction
@@ -57,7 +57,7 @@ def calculate_direction_to_closest_enemy(ship: Ship, enemies: List[Ship]) -> int
 def calculate_shot(ship: Ship, enemies: List[Ship]) -> Optional[CannonShoot]:
     for enemy in enemies:
         if distance(ship.x, enemy.x, ship.y, enemy.y) <= ship.cannonRadius:
-            print(f"Shoot to {enemy.x} {enemy.y} by {ship.id}")
+            logging.debug(f"Shoot to {enemy.x} {enemy.y} by {ship.id}")
             return CannonShoot(enemy.x, enemy.y)
 
 
