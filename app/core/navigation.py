@@ -26,7 +26,7 @@ def decide(ship: Ship, map: Map, enemies: List[Ship], dest_x: int, dest_y: int) 
 
 def get_desired_direction(ship: Ship, dest_x: int, dest_y: int) -> Direction:
     if dest_x is None or dest_y is None:
-        return Direction[ship.direction]
+        return Direction(ship.direction)
     if ship.x < dest_x:
         return Direction.EAST
     elif ship.x > dest_x:
@@ -36,7 +36,7 @@ def get_desired_direction(ship: Ship, dest_x: int, dest_y: int) -> Direction:
     elif ship.y > dest_y:
         return Direction.NORTH
     else:
-        return Direction[ship.direction]
+        return Direction(ship.direction)
 
 
 def calculate_speed(ship: Ship, map: Map, enemies: List[Ship], dest_x: int, dest_y: int) -> int:
