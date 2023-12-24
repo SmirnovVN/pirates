@@ -64,6 +64,8 @@ class Game(metaclass=Singleton):
                     command = decide(ship, self.game_map, self.enemies, dest_x, dest_y)
                     if command:
                         commands.append(command)
+                commands = "\n".join([str(d.to_dict()) for d in commands])
+                logging.info(f'Send {commands}')
                 if commands and settings.send_commands:
                     logging.info(f'Send {len(commands)} commands on tick: {self.current_tick}')
                     await send_commands(commands)

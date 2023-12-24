@@ -31,9 +31,9 @@ async def get_map() -> Map:
                            slug=map_data['slug'],
                            islands=islands)
             else:
-                logging.debug(f"Request failed with status code {map_response.status_code}")
+                logging.error(f"Request failed with status code {map_response.status_code}")
     else:
-        logging.debug(f"Request failed with status code {response.status_code}")
+        logging.error(f"Request failed with status code {response.status_code}")
 
 
 async def register_deathmatch() -> bool:
@@ -46,10 +46,10 @@ async def register_deathmatch() -> bool:
         if data.get('success') or data['errors'][0]['message'] == 'Вы уже участвуете в битве':
             return True
         else:
-            logging.debug(f"Request failed with errors  {data.get('errors')}")
+            logging.error(f"Request failed with errors  {data.get('errors')}")
             return False
     else:
-        logging.debug(f"Request failed with status code {response.status_code}")
+        logging.error(f"Request failed with status code {response.status_code}")
         return False
 
 
@@ -63,10 +63,10 @@ async def leave_deathmatch() -> bool:
         if data.get('success'):
             return data.get('success')
         else:
-            logging.debug(f"Request failed with errors  {data.get('errors')}")
+            logging.error(f"Request failed with errors  {data.get('errors')}")
             return False
     else:
-        logging.debug(f"Request failed with status code {response.status_code}")
+        logging.error(f"Request failed with status code {response.status_code}")
         return False
 
 
@@ -80,10 +80,10 @@ async def register_battle_royal() -> bool:
         if data.get('success'):
             return data.get('success')
         else:
-            logging.debug(f"Request failed with errors  {data.get('errors')}")
+            logging.error(f"Request failed with errors  {data.get('errors')}")
             return False
     else:
-        logging.debug(f"Request failed with status code {response.status_code}")
+        logging.error(f"Request failed with status code {response.status_code}")
         return False
 
 
@@ -102,9 +102,9 @@ async def scan() -> Scan:
                         zone=Zone(**data['scan']['zone']) if data['scan']['zone'] else None,
                         tick=data['scan']['tick'])
         else:
-            logging.debug(f"Request failed with errors  {data.get('errors')}")
+            logging.error(f"Request failed with errors  {data.get('errors')}")
     else:
-        logging.debug(f"Request failed with status code {response.status_code}")
+        logging.error(f"Request failed with status code {response.status_code}")
 
 
 async def long_scan(x: int, y: int) -> DefaultResponse:
@@ -118,9 +118,9 @@ async def long_scan(x: int, y: int) -> DefaultResponse:
         if data.get('success'):
             return DefaultResponse(**data)
         else:
-            logging.debug(f"Request failed with errors  {data.get('errors')}")
+            logging.error(f"Request failed with errors  {data.get('errors')}")
     else:
-        logging.debug(f"Request failed with status code {response.status_code}")
+        logging.error(f"Request failed with status code {response.status_code}")
 
 
 async def send_commands(commands: List[Command]) -> DefaultResponse:
@@ -135,6 +135,6 @@ async def send_commands(commands: List[Command]) -> DefaultResponse:
         if data.get('success'):
             return DefaultResponse(**data)
         else:
-            logging.debug(f"Request failed with errors  {data.get('errors')}")
+            logging.error(f"Request failed with errors  {data.get('errors')}")
     else:
-        logging.debug(f"Request failed with status code {response.status_code}")
+        logging.error(f"Request failed with status code {response.status_code}")
