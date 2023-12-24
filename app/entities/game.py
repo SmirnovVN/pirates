@@ -54,7 +54,7 @@ class Game(metaclass=Singleton):
                     Game.stop()
                     return
                 logging.info(f'Our ships: {self.ships}')
-                logging.info(f'We see {len(self.enemies)} enemies' if self.enemies else 'No enemies')
+                logging.info(f'Enemy ships: {self.ships}')
                 commands = []
                 if self.enemies:
                     self.currentDestination = None
