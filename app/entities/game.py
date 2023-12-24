@@ -1,7 +1,6 @@
 import logging
 from typing import Optional, List
 
-
 from app.config import settings
 from app.core.navigation import decide
 from app.entities.map import Map
@@ -16,6 +15,7 @@ class Destination:
         self.x = x
         self.y = y
         self.forced = forced
+
 
 class Game(metaclass=Singleton):
     currentDestination: Optional[Destination] = None
@@ -59,13 +59,8 @@ class Game(metaclass=Singleton):
                     logging.info(f'Our ships: {self.ships}')
                     logging.info(f'Enemy ships: {self.enemies}')
                     commands = []
-                    dest_x = self.currentDestination.x if self.currentDestination else None
-                    dest_y = self.currentDestination.y if self.currentDestination else None
-                    forced = self.currentDestination.forced if self.currentDestination else False
                     for ship in self.ships:
-                        command, new_dest_x, new_dest_y = decide(ship, self.game_map, self.enemies, dest_x, dest_y, forced)
-                        if new_dest_x and new_dest_y:
-                            self.currentDestination = Destination(new_dest_x, new_dest_y)
+                        command = decide(ship, self.game_map, self.enemies, self.currentDestination)
                         if command:
                             commands.append(command)
                     commandsass = "\n".join([str(d.to_dict()) for d in commands])

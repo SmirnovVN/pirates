@@ -1,6 +1,8 @@
 import logging
 from collections import defaultdict
 from typing import List, Optional
+
+from app.entities.game import Destination
 from app.entities.map import Map
 from app.entities.ship import Ship
 from app.enums.direction import Direction
@@ -9,24 +11,27 @@ from app.schemas.command import Command
 
 ship_counters = defaultdict(int)
 
+
 def distance(x1: float, x2: float, y1: float, y2: float) -> float:
     return ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** .5
 
 
-def decide(ship: Ship, map: Map, enemies: List[Ship], dest_x: int, dest_y: int, forced: bool) -> (Command, int, int):
-    if enemies and not forced:
+def decide(ship: Ship, map: Map, enemies: List[Ship], dest: Destination) -> (
+        Command, int, int):
+    if enemies and not dest.forced:
         cannon_shoot = calculate_shot(ship, enemies)
-        rotate, new_dest_x, new_dest_y = calculate_direction_to_closest_enemy(ship, enemies)
+        rotate = calculate_direction_to_closest_enemy(ship, enemies)
         change_speed = calculate_speed_around_enemies(ship, cannon_shoot)
     else:
-        change_speed = calculate_speed(ship, map, enemies, dest_x, dest_y)
-        rotate, new_dest_x, new_dest_y = calculate_direction_by_desired_direction(ship,
-                                                                                  get_desired_direction(ship, dest_x,
-                                                                                                        dest_y), dest_x,
-                                                                                  dest_y)
+        change_speed = calculate_speed(ship)
+        rotate = calculate_direction_by_desired_direction(
+            ship,
+            get_desired_direction(ship, dest.x, dest.y)
+        )
         cannon_shoot = None
     return Command(ship.id, changeSpeed=None if change_speed == 0 else change_speed,
-                   rotate=None if rotate == 0 else rotate, cannon_shoot=cannon_shoot), new_dest_x, new_dest_y
+                   rotate=None if rotate == 0 else rotate,
+                   cannon_shoot=cannon_shoot)
 
 
 def calculate_speed_around_enemies(ship: Ship, cannon_shot: CannonShoot) -> Optional[int]:
@@ -54,7 +59,7 @@ def get_desired_direction(ship: Ship, dest_x: int, dest_y: int) -> Direction:
         return Direction(ship.direction)
 
 
-def calculate_speed(ship: Ship, map: Map, enemies: List[Ship], dest_x: int, dest_y: int) -> int:
+def calculate_speed(ship: Ship) -> int:
     if ship.speed != ship.maxSpeed:
         return min(ship.maxChangeSpeed, ship.maxSpeed - ship.speed)
     else:
@@ -121,27 +126,27 @@ def calculate_direction(ship: Ship, enemy: Ship) -> int:
         return 0
 
 
-def calculate_direction_by_desired_direction(ship: Ship, desired_direction: Direction, dest_x: int, dest_y: int) -> (
-int, int, int):
+def calculate_direction_by_desired_direction(ship: Ship, desired_direction: Direction) -> (
+        int, int, int):
     if ship.direction == desired_direction:
-        return 0, dest_x, dest_y
+        return 0
     elif ship.direction == Direction.NORTH:
         if desired_direction == Direction.EAST:
-            return 90, dest_x, dest_y
+            return 90
         else:
-            return -90, dest_x, dest_y
+            return -90
     elif ship.direction == Direction.EAST:
         if desired_direction == Direction.SOUTH:
-            return 90, dest_x, dest_y
+            return 90
         else:
-            return -90, dest_x, dest_y
+            return -90
     elif ship.direction == Direction.SOUTH:
         if desired_direction == Direction.WEST:
-            return 90, dest_x, dest_y
+            return 90
         else:
-            return -90, dest_x, dest_y
+            return -90
     elif ship.direction == Direction.WEST:
         if desired_direction == Direction.NORTH:
-            return 90, dest_x, dest_y
+            return 90
         else:
-            return -90, dest_x, dest_y
+            return -90
