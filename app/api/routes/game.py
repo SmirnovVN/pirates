@@ -52,7 +52,7 @@ async def game_stop():
 
 
 def draw(image, enlarge, ship, color):
-    if ship.direction in {Direction.EAST, Direction.WEST}:
+    if ship.direction in {Direction.EAST.value, Direction.WEST.value}:
         width = ship.size * enlarge
         height = enlarge
     else:
@@ -60,8 +60,8 @@ def draw(image, enlarge, ship, color):
         height = ship.size * enlarge
     draw_x, draw_y = ship.x * enlarge, ship.y * enlarge
     img = Image.new("RGB", (width, height), color)
-    image.paste(img, (draw_x - (width if ship.direction == Direction.WEST else 0),
-                      draw_y - (height if ship.direction == Direction.NORTH else 0)))
+    image.paste(img, (draw_x - (width if ship.direction == Direction.WEST.value else 0),
+                      draw_y - (height if ship.direction == Direction.NORTH.value else 0)))
     img = Image.new("RGB", (enlarge, enlarge), tuple([c + 50 for c in color]))
     image.paste(img, (draw_x, draw_y))
     idraw = ImageDraw.Draw(image)
