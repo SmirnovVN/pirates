@@ -2,7 +2,6 @@ import logging
 from collections import defaultdict
 from typing import List, Optional
 
-from app.entities.game import Destination
 from app.entities.map import Map
 from app.entities.ship import Ship
 from app.enums.direction import Direction
@@ -16,7 +15,7 @@ def distance(x1: float, x2: float, y1: float, y2: float) -> float:
     return ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** .5
 
 
-def decide(ship: Ship, map: Map, enemies: List[Ship], dest: Destination) -> (
+def decide(ship: Ship, map: Map, enemies: List[Ship], dest) -> (
         Command, int, int):
     if enemies and not dest.forced:
         cannon_shoot = calculate_shot(ship, enemies)
@@ -66,7 +65,7 @@ def calculate_speed(ship: Ship) -> int:
         return 0
 
 
-def calculate_direction_to_closest_enemy(ship: Ship, enemies: List[Ship]) -> (int, int, int):
+def calculate_direction_to_closest_enemy(ship: Ship, enemies: List[Ship]) -> int:
     lowest_distance = 100000
     closest_enemy = None
     for enemy in enemies:
@@ -74,8 +73,7 @@ def calculate_direction_to_closest_enemy(ship: Ship, enemies: List[Ship]) -> (in
         if distance(ship.x, pred_x, ship.y, pred_y) < lowest_distance:
             lowest_distance = distance(ship.x, pred_y, ship.y, pred_y)
             closest_enemy = enemy
-    pred_x, pred_y = get_enemy_predicted_position(closest_enemy)
-    return calculate_direction(ship, closest_enemy), pred_x, pred_y
+    return calculate_direction(ship, closest_enemy)
 
 
 def calculate_shot(ship: Ship, enemies: List[Ship]) -> Optional[CannonShoot]:
