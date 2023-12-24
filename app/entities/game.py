@@ -19,7 +19,6 @@ class Destination:
 
 
 class Game(metaclass=Singleton):
-    currentDestination: Optional[Destination] = None
 
     def __init__(self):
         self.game_map: Optional[Map] = None
@@ -30,6 +29,7 @@ class Game(metaclass=Singleton):
         self.rendered = False
         self.image = None
         self.zone = None
+        self.currentDestination = None
 
     @staticmethod
     def stop():
@@ -57,7 +57,7 @@ class Game(metaclass=Singleton):
                         return
                     if not self.currentDestination and self.zone:
                         self.currentDestination = Destination(self.zone.x, self.zone.y)
-                    else:
+                    elif not self.currentDestination:
                         self.currentDestination = Destination(1000, 1000)
                     logging.info(f'Our ships: {self.ships}')
                     logging.info(f'Enemy ships: {self.enemies}')

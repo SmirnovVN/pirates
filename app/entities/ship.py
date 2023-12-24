@@ -16,7 +16,7 @@ class Ship:
         self.maxHp = maxHp
         self.direction = Direction(direction)
         self.speed = speed
-        self.maxSpeed = maxSpeed
+        self.maxSpeed = 14
         self.minSpeed = minSpeed
         self.maxChangeSpeed = maxChangeSpeed
         self.cannonCooldown = cannonCooldown

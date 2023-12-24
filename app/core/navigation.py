@@ -17,7 +17,7 @@ def distance(x1: float, x2: float, y1: float, y2: float) -> float:
 
 def decide(ship: Ship, map: Map, enemies: List[Ship], dest) -> (
         Command, int, int):
-    logging.debug(f'Decide {ship}, dest: {dest.x} {dest.y} {dest.forced}')
+    logging.info(f'Decide {ship}, dest: {dest.x} {dest.y} {dest.forced}')
     if enemies and not dest.forced:
         logging.info(f"See enemy")
         cannon_shoot = calculate_shot(ship, enemies)
