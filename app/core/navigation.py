@@ -57,14 +57,14 @@ def calculate_speed(ship: Ship, map: Map, enemies: List[Ship], dest_x: int, dest
 
 
 def calculate_direction_to_closest_enemy(ship: Ship, enemies: List[Ship]) -> (int, int, int):
-    lowest_distance = 0
+    lowest_distance = 100000
     closest_enemy = None
     for enemy in enemies:
         if distance(ship.x, enemy.x, ship.y, enemy.y) < lowest_distance:
             lowest_distance = distance(ship.x, enemy.x, ship.y, enemy.y)
             closest_enemy = enemy
-    return (calculate_direction(ship, closest_enemy), closest_enemy.x if closest_enemy is not None else 1000,
-            closest_enemy.y if closest_enemy is not None else 1000)
+    return (calculate_direction(ship, closest_enemy), closest_enemy.x,
+            closest_enemy.y)
 
 
 def calculate_shot(ship: Ship, enemies: List[Ship]) -> Optional[CannonShoot]:
