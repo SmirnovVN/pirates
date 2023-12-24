@@ -28,6 +28,7 @@ class Game(metaclass=Singleton):
         self.current_tick = None
         self.rendered = False
         self.image = None
+        self.zone = None
 
     @staticmethod
     def stop():
@@ -47,7 +48,7 @@ class Game(metaclass=Singleton):
                 self.rendered = False
                 self.ships = s.myShips
                 self.enemies = s.enemyShips
-
+                self.zone = s.zone
                 if not self.ships:
                     logging.debug('No ships')
                     Game.stop()

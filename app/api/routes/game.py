@@ -109,6 +109,22 @@ def draw_coordinate_grid(image, cell_size, enlarge, width, height):
             idraw.text((x * enlarge + 2, y * enlarge + 2), f"({x},{y})", fill=grid_color)
 
 
+def draw_zone(image, zone, enlarge):
+    idraw = ImageDraw.Draw(image)
+    radius = zone.radius
+    draw_x, draw_y = zone.x * enlarge, zone.y * enlarge
+    idraw.ellipse(
+        [
+            draw_x - radius * enlarge,
+            draw_y - radius * enlarge,
+            draw_x + radius * enlarge,
+            draw_y + radius * enlarge,
+        ],
+        outline=(255, 0, 0),
+        width=3
+    )
+
+
 @router.get("/map/image/{enlarge}")
 async def get_game_map(enlarge: int,
                        _: int = Query(int(time.time()))):
@@ -121,22 +137,7 @@ async def get_game_map(enlarge: int,
         game_map: Map = game.game_map
         ships = game.ships
         enemies = game.enemies
-        # import json
-        # with open('map.json', 'r') as f:
-        #     map_dict = json.loads(f.read())
-        #     from app.entities.island import Island
-        #     islands = [Island(**d) for d in map_dict['islands']]
-        #     game_map = Map(width=map_dict['width'],
-        #                    height=map_dict['height'],
-        #                    slug=map_dict['slug'],
-        #                    islands=islands)
-        # with open('firstscan_example.json', 'r') as f:
-        #     map_dict = json.loads(f.read())
-        #     from app.entities.ship import Ship
-        #     ships = [Ship(**d) for d in map_dict['scan']['myShips']]
-        #     enemies = [Ship(**d) for d in map_dict['scan']['myShips']]
-        #     for d in enemies:
-        #         d.x = d.x + 100
+        zone = game.zone
 
         image = Image.new("RGB", (game_map.width * enlarge, game_map.height * enlarge), (226, 245, 226))
 
@@ -157,6 +158,8 @@ async def get_game_map(enlarge: int,
             draw(image, enlarge, ship, (183, 7, 43))
 
         draw_coordinate_grid(image, 100, enlarge, game_map.width, game_map.height)
+        if zone:
+            draw_zone(image, zone, enlarge)
 
         img_byte_array = BytesIO()
         image.save(img_byte_array, format="PNG")
