@@ -56,6 +56,8 @@ class Game(metaclass=Singleton):
                         return
                     if not self.currentDestination and self.zone:
                         self.currentDestination = Destination(self.zone.x, self.zone.y)
+                    else:
+                        self.currentDestination = Destination(1000, 1000)
                     logging.info(f'Our ships: {self.ships}')
                     logging.info(f'Enemy ships: {self.enemies}')
                     commands = []
