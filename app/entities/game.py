@@ -12,10 +12,10 @@ from app.utils.singleton import Singleton
 
 
 class Destination:
-    def __init__(self, x: int, y: int):
+    def __init__(self, x: int, y: int, forced: bool = False):
         self.x = x
         self.y = y
-
+        self.forced = forced
 
 class Game(metaclass=Singleton):
     currentDestination: Optional[Destination] = None
@@ -62,8 +62,9 @@ class Game(metaclass=Singleton):
                     self.currentDestination = None
                 dest_x = self.currentDestination.x if self.currentDestination else None
                 dest_y = self.currentDestination.y if self.currentDestination else None
+                forced = self.currentDestination.forced if self.currentDestination else False
                 for ship in self.ships:
-                    command, new_dest_x, new_dest_y = decide(ship, self.game_map, self.enemies, dest_x, dest_y)
+                    command, new_dest_x, new_dest_y = decide(ship, self.game_map, self.enemies, dest_x, dest_y, forced)
                     if new_dest_x and new_dest_y:
                         self.currentDestination = Destination(new_dest_x, new_dest_y)
                     if command:

@@ -11,8 +11,8 @@ def distance(x1: float, x2: float, y1: float, y2: float) -> float:
     return ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** .5
 
 
-def decide(ship: Ship, map: Map, enemies: List[Ship], dest_x: int, dest_y: int) -> (Command, int, int):
-    if enemies:
+def decide(ship: Ship, map: Map, enemies: List[Ship], dest_x: int, dest_y: int, forced: bool) -> (Command, int, int):
+    if enemies and not forced:
         cannon_shoot = calculate_shot(ship, enemies)
         rotate, new_dest_x, new_dest_y = calculate_direction_to_closest_enemy(ship, enemies)
         change_speed = calculate_speed_around_enemies(ship, cannon_shoot)
@@ -71,7 +71,7 @@ def calculate_shot(ship: Ship, enemies: List[Ship]) -> Optional[CannonShoot]:
     for enemy in enemies:
         pred_x, pred_y = get_enemy_predicted_position(enemy)
         if distance(ship.x, pred_x, ship.y, pred_y) <= ship.cannonRadius:
-            logging.info(f"Shoot to {enemy.x} {enemy.y} by {ship.id}")
+            logging.info(f"Shoot to {pred_x} {pred_y} by {ship.id}")
             return CannonShoot(enemy.x, enemy.y)
 
 
