@@ -40,7 +40,8 @@ async def game_new(game_type: GameType, background_tasks: BackgroundTasks):
 
 @router.get("/destination/{x}/{y}/{forced}")
 async def set_destination(x: int, y: int, forced: bool = False):
-    Game.currentDestination = Destination(x, y, forced)
+    game = Game()
+    game.currentDestination = Destination(x, y, forced)
     return 'Destination set'
 
 
