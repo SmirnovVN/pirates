@@ -4,6 +4,7 @@ from typing import List
 import httpx
 
 from app.config import settings
+from app.entities.island import Island
 from app.entities.map import Map
 from app.entities.ship import Ship
 from app.schemas.command import Command
@@ -23,7 +24,11 @@ async def get_map() -> Map:
                 map_response = await client.get(map_url, headers=headers)
             if map_response.status_code == 200:
                 map_data = map_response.json()
-                return Map(**map_data)
+                islands = [Island(**d) for d in map_data['islands']]
+                return Map(width=map_data['width'],
+                           height=map_data['height'],
+                           slug=map_data['slug'],
+                           islands=islands)
             else:
                 logging.debug(f"Request failed with status code {map_response.status_code}")
     else:
@@ -33,7 +38,8 @@ async def get_map() -> Map:
 async def register_deathmatch() -> bool:
     headers = {"X-API-Key": settings.token}
     async with httpx.AsyncClient() as client:
-        response = await client.post(f"{settings.external_url}/deathMatch/registration", headers=headers)
+        response = await client.post(f"{settings.external_url}/deathMatch/registration",
+                                     headers=headers)
     if response.status_code == 200:
         data = response.json()
         if data.get('success') or data['errors'][0]['message'] == 'Вы уже участвуете в битве':
@@ -49,7 +55,8 @@ async def register_deathmatch() -> bool:
 async def leave_deathmatch() -> bool:
     headers = {"X-API-Key": settings.token}
     async with httpx.AsyncClient() as client:
-        response = await client.post(f"{settings.external_url}/deathMatch/exitBattle", headers=headers)
+        response = await client.post(f"{settings.external_url}/deathMatch/exitBattle",
+                                     headers=headers)
     if response.status_code == 200:
         data = response.json()
         if data.get('success'):
@@ -65,7 +72,8 @@ async def leave_deathmatch() -> bool:
 async def register_battle_royal() -> bool:
     headers = {"X-API-Key": settings.token}
     async with httpx.AsyncClient() as client:
-        response = await client.post(f"{settings.external_url}/royalBattle/registration", headers=headers)
+        response = await client.post(f"{settings.external_url}/royalBattle/registration",
+                                     headers=headers)
     if response.status_code == 200:
         data = response.json()
         if data.get('success'):

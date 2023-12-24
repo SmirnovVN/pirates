@@ -11,7 +11,15 @@ from app.service.game_service import get_map, scan, send_commands
 from app.utils.singleton import Singleton
 
 
+class Destination:
+    def __init__(self, x: int, y: int):
+        self.x = x
+        self.y = y
+
+
 class Game(metaclass=Singleton):
+    currentDestination: Optional[Destination] = None
+
     def __init__(self):
         self.game_map: Optional[Map] = None
         self.ships: List[Ship] = []
@@ -28,12 +36,6 @@ class Game(metaclass=Singleton):
         game.started = False
         Game._instances = {}
 
-    async def start(self, background_tasks: BackgroundTasks):
-        logging.debug('Start play')
-        self.game_map = await get_map()
-        self.started = True
-        background_tasks.add_task(self.play)
-
     async def play(self):
         logging.debug('Play')
         while self.started:
@@ -45,6 +47,7 @@ class Game(metaclass=Singleton):
                 self.rendered = False
                 self.ships = s.myShips
                 self.enemies = s.enemyShips
+
                 if not self.ships:
                     logging.debug('No ships')
                     Game.stop()
@@ -52,8 +55,12 @@ class Game(metaclass=Singleton):
                 logging.debug(f'We have {len(self.ships)} ships')
                 logging.debug(f'We see {len(self.enemies)} enemies' if self.enemies else 'No enemies')
                 commands = []
+                if self.enemies:
+                    self.currentDestination = None
+                dest_x = self.currentDestination.x if self.currentDestination else None
+                dest_y = self.currentDestination.y if self.currentDestination else None
                 for ship in self.ships:
-                    command = decide(ship, self.game_map, self.enemies)
+                    command = decide(ship, self.game_map, self.enemies, dest_x, dest_y)
                     if command:
                         commands.append(command)
                 if commands:
