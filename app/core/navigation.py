@@ -17,11 +17,15 @@ def distance(x1: float, x2: float, y1: float, y2: float) -> float:
 
 def decide(ship: Ship, map: Map, enemies: List[Ship], dest) -> (
         Command, int, int):
+    logging.debug(f'Decide {ship}, dest: {dest.x} {dest.y} {dest.forced}')
     if enemies and not dest.forced:
+        logging.info(f"See enemy")
         cannon_shoot = calculate_shot(ship, enemies)
         rotate = calculate_direction_to_closest_enemy(ship, enemies)
+        logging.info(f"Rotate: {rotate}")
         change_speed = calculate_speed_around_enemies(ship, cannon_shoot)
     else:
+        logging.info(f"Go dest")
         change_speed = calculate_speed(ship)
         rotate = calculate_direction_by_desired_direction(
             ship,
