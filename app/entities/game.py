@@ -1,13 +1,13 @@
 import logging
 from typing import Optional, List
 
-from fastapi import BackgroundTasks
 
+from app.config import settings
 from app.core.navigation import decide
 from app.entities.map import Map
 from app.entities.ship import Ship
 from app.schemas.scan import Scan
-from app.service.game_service import get_map, scan, send_commands
+from app.service.game_service import scan, send_commands
 from app.utils.singleton import Singleton
 
 
@@ -53,8 +53,8 @@ class Game(metaclass=Singleton):
                     logging.debug('No ships')
                     Game.stop()
                     return
-                logging.debug(f'We have {len(self.ships)} ships')
-                logging.debug(f'We see {len(self.enemies)} enemies' if self.enemies else 'No enemies')
+                logging.info(f'Our ships: {self.ships}')
+                logging.info(f'We see {len(self.enemies)} enemies' if self.enemies else 'No enemies')
                 commands = []
                 if self.enemies:
                     self.currentDestination = None
@@ -64,7 +64,7 @@ class Game(metaclass=Singleton):
                     command = decide(ship, self.game_map, self.enemies, dest_x, dest_y)
                     if command:
                         commands.append(command)
-                if commands:
+                if commands and settings.send_commands:
                     logging.info(f'Send {len(commands)} commands on tick: {self.current_tick}')
                     await send_commands(commands)
                 else:
