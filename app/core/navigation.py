@@ -50,16 +50,16 @@ def calculate_speed_around_enemies(ship: Ship, cannon_shot: CannonShoot) -> Opti
 def get_desired_direction(ship: Ship, dest_x: int, dest_y: int) -> Direction:
     if dest_x is None or dest_y is None:
         return Direction(ship.direction)
-    if ship.x < dest_x:
-        return Direction.EAST
-    elif ship.x > dest_x:
-        return Direction.WEST
-    elif ship.y < dest_y:
-        return Direction.SOUTH
-    elif ship.y > dest_y:
-        return Direction.NORTH
+    if abs(ship.x - dest_x) > abs(ship.y - dest_y):
+        if ship.x < dest_x:
+            return Direction.EAST
+        elif ship.x > dest_x:
+            return Direction.WEST
     else:
-        return Direction(ship.direction)
+        if ship.y < dest_y:
+            return Direction.SOUTH
+        elif ship.y > dest_y:
+            return Direction.NORTH
 
 
 def calculate_speed(ship: Ship) -> int:
