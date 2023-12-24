@@ -1,3 +1,6 @@
+from app.enums.direction import Direction
+
+
 class Ship:
 
     def __init__(self, id: int = None, x: int = None, y: int = None, size: int = None,
@@ -11,7 +14,7 @@ class Ship:
         self.size = size
         self.hp = hp
         self.maxHp = maxHp
-        self.direction = direction
+        self.direction = Direction(direction)
         self.speed = speed
         self.maxSpeed = maxSpeed
         self.minSpeed = minSpeed
