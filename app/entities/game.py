@@ -53,6 +53,8 @@ class Game(metaclass=Singleton):
                     logging.debug('No ships')
                     Game.stop()
                     return
+                if not self.currentDestination:
+                    self.currentDestination = Destination(self.zone.x, self.zone.y)
                 logging.info(f'Our ships: {self.ships}')
                 logging.info(f'Enemy ships: {self.enemies}')
                 commands = []
@@ -66,8 +68,8 @@ class Game(metaclass=Singleton):
                         self.currentDestination = Destination(new_dest_x, new_dest_y)
                     if command:
                         commands.append(command)
-                commands = "\n".join([str(d.to_dict()) for d in commands])
-                logging.info(f'Send {commands}')
+                commandsass = "\n".join([str(d.to_dict()) for d in commands])
+                logging.info(f'Send {commandsass}')
                 if commands and settings.send_commands:
                     logging.info(f'Send {len(commands)} commands on tick: {self.current_tick}')
                     await send_commands(commands)
