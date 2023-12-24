@@ -7,6 +7,7 @@ from app.config import settings
 from app.entities.island import Island
 from app.entities.map import Map
 from app.entities.ship import Ship
+from app.entities.zone import Zone
 from app.schemas.command import Command
 from app.schemas.default_response import DefaultResponse
 from app.schemas.scan import Scan
@@ -96,7 +97,10 @@ async def scan() -> Scan:
             logging.debug(data)
             my_ships = [Ship(**entry) for entry in data['scan']['myShips']]
             enemies = [Ship(**entry) for entry in data['scan']['enemyShips']]
-            return Scan(my_ships, enemies, data['scan']['zone'], data['scan']['tick'])
+            return Scan(myShips=my_ships,
+                        enemyShips=enemies,
+                        zone=Zone(**data['scan']['zone']) if data['scan']['zone'] else None,
+                        tick=data['scan']['tick'])
         else:
             logging.debug(f"Request failed with errors  {data.get('errors')}")
     else:
