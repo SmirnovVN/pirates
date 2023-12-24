@@ -1,13 +1,13 @@
+import asyncio
 import logging
 
 import uvicorn
 from app.api.routes import router
 from app.config import settings
-from fastapi import FastAPI, BackgroundTasks
+from fastapi import FastAPI
 
 from app.entities.game import Game
-from app.service.game_service import scan
-
+from app.service.game_service import scan, get_map
 
 logging.basicConfig(
     level=logging.DEBUG if settings.debug else logging.INFO,
@@ -28,12 +28,14 @@ async def root():
 
 
 @app.on_event("startup")
-async def startup_event(background_tasks: BackgroundTasks):
+async def startup_event():
     print("Startup")
     res = await scan()
     if res:
         game = Game()
-        await game.start(background_tasks)
+        game.game_map = await get_map()
+        game.started = True
+        asyncio.create_task(game.play())
 
 
 app.include_router(router)

@@ -36,12 +36,6 @@ class Game(metaclass=Singleton):
         game.started = False
         Game._instances = {}
 
-    async def start(self, background_tasks: BackgroundTasks):
-        logging.debug('Start play')
-        self.game_map = await get_map()
-        self.started = True
-        background_tasks.add_task(self.play)
-
     async def play(self):
         logging.debug('Play')
         while self.started:

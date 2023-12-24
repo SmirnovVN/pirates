@@ -10,7 +10,7 @@ from app.enums.direction import Direction
 from app.entities.game import Game, Destination
 from app.enums.game_type import GameType
 from app.service.game_service import leave_deathmatch, register_battle_royal, \
-    register_deathmatch
+    register_deathmatch, get_map
 from fastapi.responses import HTMLResponse
 from starlette.requests import Request
 from starlette.templating import Jinja2Templates
@@ -31,7 +31,9 @@ async def game_new(game_type: GameType, background_tasks: BackgroundTasks):
         raise HTTPException(400,
                             detail=f'Bad game type: {game_type} . Pass battle_royal or deathmatch')
     if success:
-        await game.start(background_tasks)
+        game.game_map = await get_map()
+        game.started = True
+        background_tasks.add_task(game.play)
         return 'Game started'
     return f'Game {game_type} was not started'
 
@@ -63,21 +65,29 @@ def draw(image, enlarge, ship, color):
     img = Image.new("RGB", (enlarge, enlarge), tuple([c + 50 for c in color]))
     image.paste(img, (draw_x, draw_y))
     idraw = ImageDraw.Draw(image)
+    if ship.cannonRadius:
+        radius = ship.cannonRadius
+    else:
+        radius = 20 # todo settings.deafult_cannon_radius
     idraw.ellipse(
         [
-            draw_x - ship.cannonRadius * enlarge,
-            draw_y - ship.cannonRadius * enlarge,
-            draw_x + ship.cannonRadius * enlarge,
-            draw_y + ship.cannonRadius * enlarge,
+            draw_x - radius * enlarge,
+            draw_y - radius * enlarge,
+            draw_x + radius * enlarge,
+            draw_y + radius * enlarge,
         ],
         outline=(235, 200, 200),
     )
+    if ship.scanRadius:
+        radius = ship.scanRadius
+    else:
+        radius = 20  # todo settings.deafult_cannon_radius
     idraw.ellipse(
         [
-            draw_x - ship.scanRadius * enlarge,
-            draw_y - ship.scanRadius * enlarge,
-            draw_x + ship.scanRadius * enlarge,
-            draw_y + ship.scanRadius * enlarge,
+            draw_x - radius * enlarge,
+            draw_y - radius * enlarge,
+            draw_x + radius * enlarge,
+            draw_y + radius * enlarge,
         ],
         outline=(180, 235, 180),
     )
